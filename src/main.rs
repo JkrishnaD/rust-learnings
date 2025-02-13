@@ -1,5 +1,5 @@
 use core::f64;
-use std::fs;
+use std::{collections::HashMap, fs};
 struct User {
     name: String,
     email: String,
@@ -145,8 +145,24 @@ fn main() {
         Ok(res) => {
             println!("{:?}", res);
         }
-        Err(err) => { println!("error occured {:?}", err) }
+        Err(err) => {
+            println!("error occured {:?}", err);
+        }
     }
+    //vectors
+
+    let mut vec = Vec::new();
+    vec.push(1);
+    vec.push(2);
+    vec.push(3);
+
+    println!("{:?}", even_vector(vec));
+
+    // hashmaps
+    let input_vec = vec![(String::from("jayak"),20),(String::from("krishna"),19)];
+    println!("{:?}",input_vec); // printing the hashmap
+    let hm = get_values_by_keys(input_vec);
+    println!("{:?}",hm);
 }
 
 // functions
@@ -189,9 +205,27 @@ fn borrow_variable(some_string: &String) {
 fn calculate_area(shape: Shapes) -> f64 {
     let ans = match shape {
         Shapes::Circle(radius) => 3.14 * radius * radius,
-        Shapes::Rectangle(width, height) => { width * height } // ✅ Corrected pattern
+        Shapes::Rectangle(width, height) => { width * height } // corrected pattern
         Shapes::Square(side) => side * side,
     };
 
     return ans;
+}
+// finding the even numbers in vectors
+fn even_vector(v: Vec<i32>) -> Vec<i32> {
+    let mut new_vec = Vec::new();
+    for val in v {
+        if val % 2 == 0 {
+            new_vec.push(val);
+        }
+    }
+    return new_vec;
+}
+
+fn get_values_by_keys(vec: Vec<(String, i32)>) -> HashMap<String, i32> {
+    let mut hm = HashMap::new();
+    for (key, value) in vec {
+        hm.insert(key, value);
+    }
+    return hm;
 }
