@@ -1,5 +1,5 @@
 use core::f64;
-use std::{collections::HashMap, fs};
+use std::{ collections::HashMap, fs };
 struct User {
     name: String,
     email: String,
@@ -159,10 +159,47 @@ fn main() {
     println!("{:?}", even_vector(vec));
 
     // hashmaps
-    let input_vec = vec![(String::from("jayak"),20),(String::from("krishna"),19)];
-    println!("{:?}",input_vec); // printing the hashmap
+    let input_vec = vec![(String::from("jayak"), 20), (String::from("krishna"), 19)];
+    println!("{:?}", input_vec); // printing the hashmap
     let hm = get_values_by_keys(input_vec);
-    println!("{:?}",hm);
+    println!("{:?}", hm);
+
+    //itretors
+    let mut v1 = vec![1, 2, 3, 4];
+    let v1_iter = v1.iter();
+    for val in v1_iter {
+        println!("{}", val);
+    }
+    println!("{:?}", v1);
+    // println!("{:?}",v1_iter) // to make this line work we need to clone v1_iter
+
+    //mutable iterator
+    let mut_iter = v1.iter_mut();
+    // change the original values
+    for val in mut_iter {
+        *val = *val * 2;
+    }
+    println!("{:?}", v1);
+    let mut next_iter = v1.iter_mut();
+    // each of these values are the options returned by the next iter
+    let first_number = next_iter.next();
+    let second_number = next_iter.next();
+    let third_number = next_iter.next();
+    println!("{:?} {:?} {:?}",first_number,second_number,third_number);
+
+    while let Some(val) = next_iter.next(){
+        println!("{:?} is the number",val)
+    }
+
+    let v2 = vec![1,2,3,4];
+    let v2_iter = v2.into_iter(); // it tkes the ownership from the v2 and give it to v2_iter
+    println!("{:?}",v2_iter);
+    // println!("{:?}",v2) // this line throws an error cuzzz .into_iter takes the ownership from the v2 
+
+    let v3 = vec![1,2,3,4,5,6];
+    let v3_iter = v3.iter().filter(|x| *x % 2 ==1).map(|x| x*2);
+    let v4 : Vec<i32> = v3_iter.collect();
+    println!("{:?}",v4);
 }
 
 // functions
