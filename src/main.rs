@@ -185,21 +185,30 @@ fn main() {
     let first_number = next_iter.next();
     let second_number = next_iter.next();
     let third_number = next_iter.next();
-    println!("{:?} {:?} {:?}",first_number,second_number,third_number);
+    println!("{:?} {:?} {:?}", first_number, second_number, third_number);
 
-    while let Some(val) = next_iter.next(){
-        println!("{:?} is the number",val)
+    while let Some(val) = next_iter.next() {
+        println!("{:?} is the number", val);
     }
 
-    let v2 = vec![1,2,3,4];
+    let v2 = vec![1, 2, 3, 4];
     let v2_iter = v2.into_iter(); // it tkes the ownership from the v2 and give it to v2_iter
-    println!("{:?}",v2_iter);
-    // println!("{:?}",v2) // this line throws an error cuzzz .into_iter takes the ownership from the v2 
+    println!("{:?}", v2_iter);
+    // println!("{:?}",v2) // this line throws an error cuzzz .into_iter takes the ownership from the v2
 
-    let v3 = vec![1,2,3,4,5,6];
-    let v3_iter = v3.iter().filter(|x| *x % 2 ==1).map(|x| x*2);
-    let v4 : Vec<i32> = v3_iter.collect();
-    println!("{:?}",v4);
+    let v3 = vec![1, 2, 3, 4, 5, 6];
+    let v3_iter = v3
+        .iter()
+        .filter(|x| *x % 2 == 1)
+        .map(|x| x * 2);
+    let v4: Vec<i32> = v3_iter.collect();
+    println!("{:?}", v4);
+
+    let name = String::from("Jaya Krishna");
+    let first_name = find_first(&name); 
+    // here first_name is the immutable reference to the word name
+    println!("{}", first_name);
+    let jaya = "jaya"; // it directly pointing to the binary
 }
 
 // functions
@@ -265,4 +274,16 @@ fn get_values_by_keys(vec: Vec<(String, i32)>) -> HashMap<String, i32> {
         hm.insert(key, value);
     }
     return hm;
+}
+// taking the reference of the word
+fn find_first(word: &String) -> &str {
+    let mut index = 0;
+    for (_, i) in word.chars().enumerate() {
+        if i == ' ' {
+            break;
+        }
+        index = index + 1;
+    }
+
+    return &word[0..index];
 }
