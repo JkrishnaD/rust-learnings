@@ -1,10 +1,8 @@
-use core::f64;
-use std::{ collections::HashMap, fs };
+use core::{ f64, num };
+use std::{ collections::HashMap, fmt::format, fs };
 struct User {
     name: String,
     email: String,
-    password: String,
-    is_active: bool,
 }
 struct Rect {
     width: u32,
@@ -33,6 +31,44 @@ enum Shapes {
     Circle(f64),
     Rectangle(f64, f64),
     Square(f64),
+}
+
+//traits 
+// LSS - traits are declared and implemented for the structs
+trait Summary {
+    fn summarize(&self) -> String{
+        return String::from("default implementation");
+    }
+}
+trait Display{
+    fn display(&self) -> String{
+        return String::from("this the display trait function");
+    }
+}
+
+struct Dev {
+    name: String,
+    age: u32,
+}
+// this is the implmentation of the trait for the struct
+impl Summary for Dev {
+    // as there is no seperate methods it asccess the default implementation
+    fn summarize(&self) -> String {
+        format!("{} is the dev and his age is {}",self.name,self.age)
+    }
+
+}
+
+impl Summary for User{
+    fn summarize(&self) -> String {
+        format!("{} is user with email {}",self.name,self.email)
+    }
+}
+
+impl Display for Dev {
+    fn display(&self) -> String {
+        format!("{} is the dev from the display trait and his age is {}",self.name,self.age)
+    }
 }
 fn main() {
     println!("Hello, world!");
@@ -110,8 +146,6 @@ fn main() {
     let user1 = User {
         name: String::from("jaya"),
         email: String::from("jayak5063@gmail.com"),
-        password: String::from("******"),
-        is_active: true,
     };
 
     println!("{} is name and {} is email", user1.name, user1.email);
@@ -205,10 +239,29 @@ fn main() {
     println!("{:?}", v4);
 
     let name = String::from("Jaya Krishna");
-    let first_name = find_first(&name); 
+    let first_name = find_first(&name);
     // here first_name is the immutable reference to the word name
     println!("{}", first_name);
     let jaya = "jaya"; // it directly pointing to the binary
+
+    // trait implementations
+     let dev = Dev {
+        name: String::from("jayakrishna"),
+        age:20
+     };
+     let user = User{
+        name: String::from("jaya"),
+        email: String::from("jayak5063@gmail.com")
+     };
+
+     let dev_display = Dev{
+        name: String::from("jayakrishna"),
+        age: 20
+     };
+    //  println!("{}",dev.summarize());
+     notify(dev);
+     notify(user);
+     notify_multiple(dev_display);
 }
 
 // functions
@@ -286,4 +339,15 @@ fn find_first(word: &String) -> &str {
     }
 
     return &word[0..index];
+}
+
+// traits as a parameter as Summary is passed as the parameter whichever trait implements the Summary can be passed
+fn notify<T :Summary>(n:T) { // this is a trait bound syntax 
+    println!("{}", n.summarize());
+} 
+
+// trait bounds with multiple traits
+fn notify_multiple<T:Summary + Display>(n:T){
+    println!("{}",n.display());
+    println!("{}",n.summarize());
 }
