@@ -1,5 +1,4 @@
-use core::{ f64, num };
-use std::{ collections::HashMap, fmt::format, fs };
+use std::{ collections::HashMap, fs, result, sync::mpsc, thread::{ self, spawn } };
 struct User {
     name: String,
     email: String,
@@ -33,15 +32,15 @@ enum Shapes {
     Square(f64),
 }
 
-//traits 
+//traits
 // LSS - traits are declared and implemented for the structs
 trait Summary {
-    fn summarize(&self) -> String{
+    fn summarize(&self) -> String {
         return String::from("default implementation");
     }
 }
-trait Display{
-    fn display(&self) -> String{
+trait Display {
+    fn display(&self) -> String {
         return String::from("this the display trait function");
     }
 }
@@ -54,20 +53,19 @@ struct Dev {
 impl Summary for Dev {
     // as there is no seperate methods it asccess the default implementation
     fn summarize(&self) -> String {
-        format!("{} is the dev and his age is {}",self.name,self.age)
+        format!("{} is the dev and his age is {}", self.name, self.age)
     }
-
 }
 
-impl Summary for User{
+impl Summary for User {
     fn summarize(&self) -> String {
-        format!("{} is user with email {}",self.name,self.email)
+        format!("{} is user with email {}", self.name, self.email)
     }
 }
 
 impl Display for Dev {
     fn display(&self) -> String {
-        format!("{} is the dev from the display trait and his age is {}",self.name,self.age)
+        format!("{} is the dev from the display trait and his age is {}", self.name, self.age)
     }
 }
 fn main() {
@@ -245,23 +243,81 @@ fn main() {
     let jaya = "jaya"; // it directly pointing to the binary
 
     // trait implementations
-     let dev = Dev {
+    let dev = Dev {
         name: String::from("jayakrishna"),
-        age:20
-     };
-     let user = User{
+        age: 20,
+    };
+    let user = User {
         name: String::from("jaya"),
-        email: String::from("jayak5063@gmail.com")
-     };
+        email: String::from("jayak5063@gmail.com"),
+    };
 
-     let dev_display = Dev{
+    let dev_display = Dev {
         name: String::from("jayakrishna"),
-        age: 20
-     };
+        age: 20,
+    };
     //  println!("{}",dev.summarize());
-     notify(dev);
-     notify(user);
-     notify_multiple(dev_display);
+    notify(dev);
+    notify(user);
+    notify_multiple(dev_display);
+
+    // lifetimes
+    // let longest_str: String;
+    // let str1 = String::from("small");
+    // {
+    //     let str2 = String::from("larger");
+    //     longest_str = longest_string(&str1, &str2);
+    // }
+    // println!(" {} is the longest string",longest_str)
+
+    //threads
+    let handle = thread::spawn(|| {
+        for i in 1..5 {
+            println!("{i} hi from the spawn thread");
+        }
+    });
+    handle.join().unwrap(); // based on this line the handle thread runs
+    for i in 0..10 {
+        println!("hi form the main thread {i}");
+    }
+
+    let v = vec![1, 2, 3, 4];
+    thread::spawn(move || {
+        // move keyword to access the variables from outside the envirment
+        println!("vector in the thread {v:?}");
+    });
+    // channels is a concept which let data is sent from one thread to another
+    // generally used for the message passing between the threads
+    // channel has two halves 1)transmitter 2)reciever
+    let (tx, rx) = mpsc::channel();
+    // mpsc : multiple producer and single consumer
+
+    // spawn(move || {
+    //     tx.send(String::from("jaya"));
+    // });
+
+    // let result = rx.recv();
+    // match result {
+    //     Ok(result) => println!("{}", result),
+    //     Err(err) => println!(" error while reading the message {}", err),
+    // }
+
+    for i in 0..10 {
+        let producer = tx.clone();
+        spawn(move || {
+            let mut sum = 0;
+            for j in i * 10000000..i + 1 * 10000000 - 1 {
+                sum = sum + j;
+            }
+            producer.send(sum).unwrap();
+        });
+    }
+    drop(tx); // without this the rx will hung and wait till it gets thread from tx
+    let mut final_value:i128 =  0;
+    for val in rx {
+        final_value = final_value + val;
+    }
+    println!("{}",final_value)
 }
 
 // functions
@@ -342,12 +398,21 @@ fn find_first(word: &String) -> &str {
 }
 
 // traits as a parameter as Summary is passed as the parameter whichever trait implements the Summary can be passed
-fn notify<T :Summary>(n:T) { // this is a trait bound syntax 
+fn notify<T: Summary>(n: T) {
+    // this is a trait bound syntax
     println!("{}", n.summarize());
-} 
+}
 
 // trait bounds with multiple traits
-fn notify_multiple<T:Summary + Display>(n:T){
-    println!("{}",n.display());
-    println!("{}",n.summarize());
+fn notify_multiple<T: Summary + Display>(n: T) {
+    println!("{}", n.display());
+    println!("{}", n.summarize());
+}
+
+fn longest_string<'a>(first: &'a str, second: &'a str) -> &'a str {
+    if first.len() > second.len() {
+        return first;
+    } else {
+        return second;
+    }
 }
